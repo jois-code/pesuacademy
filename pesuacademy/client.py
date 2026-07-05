@@ -8,11 +8,11 @@ from bs4 import BeautifulSoup
 from pesuacademy.models import (
     Announcement,
     Course,
+    Credits,
     MaterialLink,
     Profile,
     SeatingInformation,
     SemesterResult,
-    Credits,
     Timetable,
     Topic,
     Unit,

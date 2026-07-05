@@ -12,7 +12,7 @@ from .profile import (
     Profile,
     QualifyingExamination,
 )
-from .results import Assessment, CourseResult, Credits, SemesterResult, SemesterSGPA, CGPAResult
+from .results import Assessment, CGPAResult, CourseResult, Credits, SemesterResult, SemesterSGPA
 from .seating_information import SeatingInformation
 from .timetable import ClassSession, Slot, Time, Timetable
 

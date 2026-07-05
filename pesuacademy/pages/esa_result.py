@@ -86,7 +86,7 @@ class _ResultsPageHandler:
         """Parses the summary section (SGPA, credits) and grades of the provisional results page."""
         sgpa_raw, credits_earned, credits_total = "N/A", "N/A", "N/A"
         grades = {}
-        
+
         containers = soup.find_all("div", id="isaEsaResult_3")
         for container in containers:
             sem_label = container.find("label", class_="control-label")
@@ -99,7 +99,7 @@ class _ResultsPageHandler:
                     credits_total = credit_parts[1].strip() if len(credit_parts) > 1 else credits_earned
 
                     sgpa_raw = summary_divs[1].contents[-1].strip()
-                
+
                 table = container.find("table")
                 if table:
                     tbody = table.find("tbody")
@@ -116,7 +116,7 @@ class _ResultsPageHandler:
         return sgpa_raw, credits_earned, credits_total, grades
 
     @staticmethod
-    async def _get(session: httpx.AsyncClient, semester_id: str, semester: int) -> SemesterResult:
+    async def _get(session: httpx.AsyncClient, semester_id: str, semester: int) -> SemesterResult:  # noqa: C901
         """Fetches the ESA results for a given semester ID.
 
         Args:
@@ -154,7 +154,7 @@ class _ResultsPageHandler:
         # Check if we need to fetch provisional results
         needs_provisional = False
         is_ongoing = False
-        
+
         # Check if ISA 1 or ISA 2 is NA (meaning semester is ongoing and ESA won't be available)
         for course in course_results:
             for assessment in course.assessments:
@@ -183,7 +183,8 @@ class _ResultsPageHandler:
             response_53.raise_for_status()
 
             soup_53 = BeautifulSoup(response_53.text, "lxml")
-            prov_sgpa, prov_credits_earned, prov_credits_total, provisional_grades = _ResultsPageHandler._parse_provisional_summary(soup_53, semester)
+            prov_parsed = _ResultsPageHandler._parse_provisional_summary(soup_53, semester)
+            prov_sgpa, prov_credits_earned, prov_credits_total, provisional_grades = prov_parsed
 
             # If SGPA is N/A in final results, fallback to provisional results
             if sgpa == "N/A":
@@ -232,7 +233,7 @@ class _ResultsPageHandler:
         # SGPA is N/A. We must check if the semester is ongoing by looking at ISA marks.
         course_results = _ResultsPageHandler._parse_course_results(soup_9)
         is_ongoing = False
-        
+
         for course in course_results:
             for assessment in course.assessments:
                 if assessment.name in ("ISA 1", "ISA 2") and assessment.marks in ("NA", None):
@@ -240,7 +241,7 @@ class _ResultsPageHandler:
                     break
             if is_ongoing:
                 break
-                
+
         # If the semester is not ongoing, fetch provisional results for the SGPA
         if not is_ongoing:
             params_53 = _build_params(constants._PageURLParams.ProvisionalResults, semid=semester_id)
@@ -248,11 +249,12 @@ class _ResultsPageHandler:
             response_53.raise_for_status()
 
             soup_53 = BeautifulSoup(response_53.text, "lxml")
-            prov_sgpa, prov_credits_earned, prov_credits_total, _ = _ResultsPageHandler._parse_provisional_summary(soup_53, semester)
-            
+            prov_parsed = _ResultsPageHandler._parse_provisional_summary(soup_53, semester)
+            prov_sgpa, prov_credits_earned, prov_credits_total, _ = prov_parsed
+
             if prov_sgpa != "N/A":
                 sgpa = prov_sgpa
                 credits_earned = prov_credits_earned
                 credits_total = prov_credits_total
-                
+
         return sgpa, Credits(earned=credits_earned, total=credits_total)

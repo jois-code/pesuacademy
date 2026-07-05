@@ -10,13 +10,13 @@ from pesuacademy.client import _PesuScraper
 # Import all Pydantic models to be used as return types for clarity
 from pesuacademy.models import (
     Announcement,
+    CGPAResult,
     Course,
+    Credits,
     MaterialLink,
     Profile,
     SeatingInformation,
     SemesterResult,
-    Credits,
-    CGPAResult,
     SemesterSGPA,
     Timetable,
     Topic,
@@ -164,7 +164,7 @@ class PESUAcademy:
         for sem in sorted(self._client._semester_ids.keys()):
             sgpa_str, credits = await self.get_sgpa(semester=sem)
             semester_list.append(SemesterSGPA(semester=sem, sgpa=sgpa_str, credits=credits))
-            
+
             # Add to CGPA calculation if SGPA is a valid number
             if sgpa_str != "N/A":
                 try:
@@ -174,14 +174,15 @@ class PESUAcademy:
                     total_earned_credits += sem_credits_earned
                 except ValueError:
                     pass
-        
+
         if total_earned_credits > 0:
             cgpa_val = round(total_grade_points / total_earned_credits, 2)
             cgpa_str = f"{cgpa_val:.2f}"
         else:
             cgpa_str = "N/A"
-            
-        total_credits = Credits(earned=str(total_earned_credits).rstrip('0').rstrip('.'), total=str(total_earned_credits).rstrip('0').rstrip('.'))
+
+        earned_credits_str = str(total_earned_credits).rstrip("0").rstrip(".")
+        total_credits = Credits(earned=earned_credits_str, total=earned_credits_str)
 
         return CGPAResult(cgpa=cgpa_str, credits=total_credits, semesters=semester_list)
 
