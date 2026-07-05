@@ -170,7 +170,7 @@ class PESUAcademy:
                 try:
                     sem_sgpa = float(sgpa_str)
                     sem_credits_earned = float(credits.earned)
-                    total_grade_points += (sem_sgpa * sem_credits_earned)
+                    total_grade_points += sem_sgpa * sem_credits_earned
                     total_earned_credits += sem_credits_earned
                 except ValueError:
                     pass
