@@ -12,7 +12,7 @@ from .profile import (
     Profile,
     QualifyingExamination,
 )
-from .results import Assessment, CourseResult, Credits, SemesterResult
+from .results import Assessment, CourseResult, Credits, SemesterResult, SemesterSGPA, CGPAResult
 from .seating_information import SeatingInformation
 from .timetable import ClassSession, Slot, Time, Timetable
 
@@ -35,6 +35,8 @@ __all__ = [
     "Assessment",
     "CourseResult",
     "Credits",
+    "SemesterSGPA",
+    "CGPAResult",
     "Timetable",
     "Slot",
     "Time",

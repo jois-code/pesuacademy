@@ -13,3 +13,4 @@ test*.*
 docs/modules.rst
 docs/pesuacademy*.rst
 docs/_build/
+venv/
